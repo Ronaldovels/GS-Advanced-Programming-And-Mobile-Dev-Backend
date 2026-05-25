@@ -2,6 +2,11 @@
 
 API REST desenvolvida com Spring Boot para monitoramento de missões espaciais. Permite o cadastro e consulta de sensores, eventos operacionais e alertas críticos gerados durante a operação de uma missão.
 
+## Integrantes
+- Felipe Wapf Fettback - RM557217 - 3ECA
+- Lucas Rodrigues Grecco - RM558261 - 3ECA
+- Ronaldo Veloso Filho - RM556445 - 3ECR
+
 ## Tecnologias
 
 - Java 17
