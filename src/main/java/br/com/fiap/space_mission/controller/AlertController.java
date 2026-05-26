@@ -2,6 +2,8 @@ package br.com.fiap.space_mission.controller;
 
 import br.com.fiap.space_mission.model.Alert;
 import br.com.fiap.space_mission.repository.AlertRepository;
+import br.com.fiap.space_mission.repository.EventRepository;
+import br.com.fiap.space_mission.repository.SensorRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,9 +15,13 @@ import java.util.List;
 public class AlertController {
 
     private final AlertRepository alertRepository;
+    private final SensorRepository sensorRepository;
+    private final EventRepository eventRepository;
 
-    public AlertController(AlertRepository alertRepository) {
+    public AlertController(AlertRepository alertRepository, SensorRepository sensorRepository, EventRepository eventRepository) {
         this.alertRepository = alertRepository;
+        this.sensorRepository = sensorRepository;
+        this.eventRepository = eventRepository;
     }
 
     @GetMapping
@@ -42,14 +48,15 @@ public class AlertController {
 
     @PostMapping
     public ResponseEntity<Alert> create(@RequestBody Alert alert) {
-        Alert saved = alertRepository.save(alert);
-        return ResponseEntity.status(HttpStatus.CREATED).body(saved);
+        resolveReferences(alert);
+        return ResponseEntity.status(HttpStatus.CREATED).body(alertRepository.save(alert));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<Alert> update(@PathVariable Long id, @RequestBody Alert alert) {
         if (!alertRepository.existsById(id)) return ResponseEntity.notFound().build();
         alert.setId(id);
+        resolveReferences(alert);
         return ResponseEntity.ok(alertRepository.save(alert));
     }
 
@@ -58,5 +65,14 @@ public class AlertController {
         if (!alertRepository.existsById(id)) return ResponseEntity.notFound().build();
         alertRepository.deleteById(id);
         return ResponseEntity.noContent().build();
+    }
+
+    private void resolveReferences(Alert alert) {
+        if (alert.getSensor() != null && alert.getSensor().getId() != null) {
+            alert.setSensor(sensorRepository.findById(alert.getSensor().getId()).orElse(null));
+        }
+        if (alert.getEvent() != null && alert.getEvent().getId() != null) {
+            alert.setEvent(eventRepository.findById(alert.getEvent().getId()).orElse(null));
+        }
     }
 }
